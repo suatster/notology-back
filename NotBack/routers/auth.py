@@ -76,3 +76,6 @@ def refresh_token_endpoint(response: Response, refresh_token: str = Cookie(None)
     new_access_token = create_access_token(str(user.id))
     response.set_cookie("access_token", new_access_token, httponly=True, samesite="lax")
     return {"access_token": new_access_token, "token_type": "bearer"}
+
+# logout
+
