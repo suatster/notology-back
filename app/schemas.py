@@ -1,5 +1,4 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
 from uuid import UUID
 
@@ -9,18 +8,21 @@ class RegisterRequest(BaseModel):
     password: str
 
 
-class UserOut(BaseModel):
+class User(BaseModel):
     id: UUID
     username: str
     email: EmailStr
     created_at: datetime
 
+    class Config:
+        from_attributes = True    
 
-class Config:
-    orm_mode = True
+
+class RegisterResponse(BaseModel):
+    message: str
+    user: User
 
 
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
-
