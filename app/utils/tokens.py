@@ -40,9 +40,9 @@ def verify_and_consume_refresh_token( db: Session, token: str) -> models.Refresh
         return None
     
     try:
-        token_entry = db.query(models.RefreshToken)\
-                        .filter(models.RefreshToken.token == token)\
-                        .with_for_update(nowait=True)\
+        token_entry = db.query(models.RefreshToken) \
+                        .filter(models.RefreshToken.token == token) \
+                        .with_for_update(nowait=True) \
                         .one()
     except NoResultFound:
         return None
