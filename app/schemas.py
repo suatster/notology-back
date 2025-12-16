@@ -32,6 +32,7 @@ class ImageResponse(BaseModel):
     id: UUID
     file_path: str
     file_type: str
+    category: str
     created_at: datetime
 
     class Config:

@@ -1,53 +1,67 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+import os
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query
 from sqlalchemy.orm import Session
 from uuid import uuid4
-import os
 from ..database import get_db
 from .auth import get_current_user
-from .. import crud, schemas  
-
+from .. import crud, schemas
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
 
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
 CONTENT_TYPES = {"image/jpeg", "image/png"}
-UPLOAD_DIR = "uploads/images"
+BASE_UPLOAD_DIR = "uploads/images"
+CATEGORIES = {"matematik", "fizik", "kimya"}
 
 
-os.makedirs(UPLOAD_DIR, exist_ok=True)
+for category in CATEGORIES:
+    os.makedirs(os.path.join(BASE_UPLOAD_DIR, category), exist_ok=True)
 
 
 @router.post("/upload", response_model=schemas.ImageResponse)
 def upload_image(
+    category: str = Query(..., description="matematik | fizik | kimya"),
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: schemas.User = Depends(get_current_user)  # buradan user alıyoruz
+    current_user: schemas.User = Depends(get_current_user)
 ):
-    # Uzantı kontrolü
-    extension = file.filename.split(".")[-1].lower()
+    if category not in CATEGORIES:
+        raise HTTPException(status_code=400, detail="Invalid category")
+
+    extension = file.filename.split('.')[-1].lower()
     if extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(status_code=400, detail="Invalid file type!")
+        raise HTTPException(status_code=400, detail="Invalid file type")
 
-    # MIME türü kontrolü
     if file.content_type not in CONTENT_TYPES:
-        raise HTTPException(status_code=400, detail="Only JPG, JPEG or PNG allowed.")
+        raise HTTPException(status_code=400, detail="Invalid MIME type")
 
-    # Benzersiz dosya adı
-    file_id = uuid4() 
-    new_filename = f"{file_id}.{extension}"
-    save_path = os.path.join(UPLOAD_DIR, new_filename)
+    file_id = uuid4()
+    filename = f"{file_id}.{extension}"
+    save_path = os.path.join(BASE_UPLOAD_DIR, category, filename)
 
-    # Dosyayı kaydet
     with open(save_path, "wb") as buffer:
         buffer.write(file.file.read())
 
-    db_image = crud.create_image(
+    image = crud.create_image(
         db=db,
         id=file_id,
         user_id=current_user.id,
-        file_path=f"/{save_path}", 
-        file_type=file.content_type
+        file_path=f"/{save_path}",  
+        file_type=file.content_type,
+        category=category
     )
 
-    return db_image
+    return image
+
+
+@router.get("/myimages", response_model=list[schemas.ImageResponse])
+def get_my_images(
+    category: str | None = Query(None),
+    db: Session = Depends(get_db),
+    current_user: schemas.User = Depends(get_current_user)
+):
+    if category:
+        return crud.get_images_for_user_by_category(db, current_user.id, category)
+
+    return crud.get_images_for_user(db, current_user.id)
