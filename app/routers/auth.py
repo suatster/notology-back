@@ -29,10 +29,10 @@ FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN', 'http://localhost:5173')
 @router.post("/register", response_model=schemas.RegisterResponse)
 def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
     if crud.get_user_by_username(db, payload.username):
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status_code=400, detail={"message": "Username already exists"})
 
     if crud.get_user_by_email(db, payload.email):
-        raise HTTPException(status_code=400, detail="Email already exists")
+        raise HTTPException(status_code=400, detail={"message": "Email already exists"})
 
     hashed = hash_password(payload.password)
     user = crud.create_user(db, payload.username, payload.email, hashed)
@@ -41,6 +41,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
         message="You successfully registered", 
         user=user
     )
+
 
 
 @router.post("/login")
@@ -54,7 +55,7 @@ def token(
            or crud.get_user_by_email(db, form_data.username))
     
     if not user or not verify_password(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
 
     access = create_access_token(str(user.id))
     refresh = create_refresh_token()
