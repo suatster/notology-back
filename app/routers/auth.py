@@ -68,7 +68,7 @@ def token(
     response.set_cookie(key="refresh_token", value=refresh, httponly=True, samesite="lax",
                         path="/", max_age=REFRESH_EXPIRE_DAYS * 24* 60 * 60)
 
-    return {"message": "Login successful"}
+    return {"message": "Login successful"} 
 
 
 
