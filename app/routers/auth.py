@@ -1,4 +1,5 @@
-from fastapi import (APIRouter, Depends, 
+from fastapi import (
+        APIRouter, Depends, 
         HTTPException, Response, Cookie, Request)
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -12,17 +13,10 @@ from ..utils.tokens import (
     verify_access_token,
     verify_and_consume_refresh_token
 )
-from dotenv import load_dotenv
-import os
+from ..core.config import settings
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
-
-
-load_dotenv()
-ACCESS_EXPIRE_MINUTES = int(os.getenv('ACCESS_TOKEN_EXPIRE_MINUTES', '15'))
-REFRESH_EXPIRE_DAYS = int(os.getenv('REFRESH_TOKEN_EXPIRE_DAYS', '14'))
-FRONTEND_ORIGIN = os.getenv('FRONTEND_ORIGIN', 'http://localhost:5173')
 
 
 
@@ -60,13 +54,13 @@ def token(
     access = create_access_token(str(user.id))
     refresh = create_refresh_token()
 
-    expires_at = datetime.utcnow() + timedelta(days=REFRESH_EXPIRE_DAYS)
+    expires_at = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     crud.save_refresh_token(db, user.id, refresh, expires_at)
 
-    response.set_cookie(key="access_token", value=access, httponly=True, samesite="lax",
-                        path="/", max_age=ACCESS_EXPIRE_MINUTES * 60)
-    response.set_cookie(key="refresh_token", value=refresh, httponly=True, samesite="lax",
-                        path="/", max_age=REFRESH_EXPIRE_DAYS * 24* 60 * 60)
+    response.set_cookie(key="access_token", value=access, httponly=True, samesite=None,
+                        path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    response.set_cookie(key="refresh_token", value=refresh, httponly=True, samesite=None,
+                        path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
 
     return {"message": "Login successful"} 
 
@@ -79,7 +73,7 @@ def get_current_user(
 ):
     
     origin = request.headers.get("origin")
-    if origin and origin != FRONTEND_ORIGIN:
+    if origin and origin != settings.FRONTEND_ORIGIN:
         raise HTTPException(status_code=403)
 
     if not access_token:
@@ -120,15 +114,15 @@ def refresh_token(
     new_access = create_access_token(str(db_rt.user_id))
     new_refresh = create_refresh_token()
 
-    expires_at = datetime.utcnow() + timedelta(days=REFRESH_EXPIRE_DAYS)
+    expires_at = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     crud.save_refresh_token(db, db_rt.user_id, new_refresh, expires_at)
 
-    response.set_cookie("access_token", new_access, httponly=True, samesite="lax", 
-                        path="/", max_age=ACCESS_EXPIRE_MINUTES * 60)
-    response.set_cookie("refresh_token", new_refresh, httponly=True, samesite="lax", 
-                        path="/", max_age=REFRESH_EXPIRE_DAYS * 24 * 60 * 60)
+    response.set_cookie("access_token", new_access, httponly=True, samesite=None, 
+                        path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
+    response.set_cookie("refresh_token", new_refresh, httponly=True, samesite=None, 
+                        path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
 
-    return {"token_type": "bearer"}
+    return {"message": "Token refreshed"}
 
 
 

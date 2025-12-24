@@ -1,13 +1,10 @@
 import requests
 from fastapi import APIRouter, HTTPException
 from collections import deque
+from app.core.config import settings
 
 router = APIRouter(prefix="/quotes", tags=["Quotes"])
 
-QUOTABLE_RANDOM_URL = "https://api.quotable.io/random"
-
-MAX_CACHE_SIZE = 10
-MAX_RETRY = 5
 
 seen_quotes = set()
 quote_queue = deque()
@@ -15,9 +12,9 @@ quote_queue = deque()
 
 @router.get("/random")
 def get_random_quote():
-    for _ in range(MAX_RETRY):
+    for _ in range(settings.MAX_RETRY):
         try:
-            request = requests.get(QUOTABLE_RANDOM_URL, timeout=5, verify=False)
+            request = requests.get(settings.QUOTABLE_RANDOM_URL, timeout=5, verify=False)
             request.raise_for_status()
         except Exception as e:
             raise HTTPException(
@@ -32,7 +29,7 @@ def get_random_quote():
             seen_quotes.add(quote)
             quote_queue.append(quote)
 
-            if len(quote_queue) > MAX_CACHE_SIZE:
+            if len(quote_queue) > settings.MAX_CACHE_SIZE:
                 old = quote_queue.popleft()
                 seen_quotes.remove(old)
 

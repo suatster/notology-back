@@ -35,6 +35,6 @@ class Images(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey('users.id'), nullable=False)
     file_path = Column(String(512), nullable=False)
     file_type = Column(String(50), nullable=False)
-    category = Column(String(50), nullable=False)
+    lesson = Column(String(50), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     user = relationship('Users', back_populates='images')  

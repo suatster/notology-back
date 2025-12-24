@@ -4,14 +4,14 @@ from uuid import UUID
 
 class RegisterRequest(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     password: str
 
 
 class User(BaseModel):
     id: UUID
     username: str
-    email: EmailStr
+    email: str
     created_at: datetime
 
     class Config:
