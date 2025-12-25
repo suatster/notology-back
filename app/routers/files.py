@@ -105,7 +105,7 @@ def get_image(
     print(path)
     safe_path = os.path.normpath(path).replace("..", "")
     print(safe_path)
-    file_path = os.path.join(safe_path).replace('/', '\\')
+    file_path = safe_path.replace('/', '\\')
     print(file_path)
 
     if not os.path.isfile(file_path):
