@@ -57,10 +57,10 @@ def token(
     expires_at = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     crud.save_refresh_token(db, user.id, refresh, expires_at)
 
-    response.set_cookie(key="access_token", value=access, httponly=True, samesite=None,
-                        path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
-    response.set_cookie(key="refresh_token", value=refresh, httponly=True, samesite=None,
-                        path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
+    response.set_cookie(key="access_token", value=access, httponly=True, samesite="none",
+                        secure=False, path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 * 60 * 60)
+    response.set_cookie(key="refresh_token", value=refresh, httponly=True, samesite="none",
+                        secure=False, path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
 
     return {"message": "Login successful"} 
 
@@ -72,10 +72,12 @@ def get_current_user(
     db: Session = Depends(get_db)
 ):
     
-    origin = request.headers.get("origin")
-    if origin and origin != settings.FRONTEND_ORIGIN:
-        raise HTTPException(status_code=403)
-
+    #origin = request.headers.get("origin")
+    #if origin and origin != settings.FRONTEND_ORIGIN:
+        #raise HTTPException(status_code=403)
+    print(request.cookies)
+    print(request.headers)
+    print(access_token)
     if not access_token:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -117,10 +119,10 @@ def refresh_token(
     expires_at = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
     crud.save_refresh_token(db, db_rt.user_id, new_refresh, expires_at)
 
-    response.set_cookie("access_token", new_access, httponly=True, samesite=None, 
-                        path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60)
-    response.set_cookie("refresh_token", new_refresh, httponly=True, samesite=None, 
-                        path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
+    response.set_cookie("access_token", new_access, httponly=True, samesite="none", 
+                        secure=False, path="/", max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 * 60 * 60)
+    response.set_cookie("refresh_token", new_refresh, httponly=True, samesite="none", 
+                        secure=False, path="/", max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60)
 
     return {"message": "Token refreshed"}
 
@@ -135,7 +137,7 @@ def logout(
     
     crud.delete_all_refresh_tokens_for_user(db, current_user.id)
 
-    response.delete_cookie("access_token", path="/")
-    response.delete_cookie("refresh_token", path="/")
+    response.delete_cookie("access_token", path="/", samesite="none", secure=False)
+    response.delete_cookie("refresh_token", path="/", samesite="none", secure=False)
 
     return {"message": "You successfully logged out"}
