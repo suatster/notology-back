@@ -26,15 +26,3 @@ class RegisterResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = 'bearer'
-
-
-class ImageResponse(BaseModel):
-    id: UUID
-    file_path: str
-    file_type: str
-    category: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
-        

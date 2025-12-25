@@ -44,38 +44,3 @@ def delete_refresh_token(db: Session, token: str):
 def delete_all_refresh_tokens_for_user(db: Session, user_id):
     db.query(models.RefreshToken).filter(models.RefreshToken.user_id == user_id).delete()
     db.commit()
-
-
-def create_image(db: Session, id: UUID, user_id: str, file_path: str, file_type: str, lesson: str) -> models.Images:
-    image = models.Images(
-        id=id,
-        user_id=user_id,
-        file_path=file_path,
-        file_type=file_type,
-        lesson=lesson
-    )
-    db.add(image)
-    db.commit()
-    db.refresh(image)
-    return image
-
-
-def get_images_for_user(db: Session, user_id):
-    return (
-        db.query(models.Images)
-        .filter(models.Images.user_id == user_id)
-        .order_by(models.Images.created_at.desc())
-        .all()
-    )
-
-
-def get_images_for_user_by_lesson(db: Session, user_id, lesson: str):
-    return (
-        db.query(models.Images)
-        .filter(
-            models.Images.user_id == user_id,
-            models.Images.lesson == lesson
-        )
-        .order_by(models.Images.created_at.desc())
-        .all()
-    )
