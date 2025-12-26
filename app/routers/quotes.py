@@ -14,7 +14,7 @@ quote_queue = deque()
 def get_random_quote():
     for _ in range(settings.MAX_RETRY):
         try:
-            request = requests.get(settings.QUOTABLE_RANDOM_URL, timeout=5, verify=False)
+            request = requests.get(settings.QUOTABLE_URL, timeout=5, verify=False)
             request.raise_for_status()
         except Exception as e:
             raise HTTPException(

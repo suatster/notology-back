@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import auth, files, quotes
+from .routers import auth, files, quotes, chat
 from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 
@@ -26,3 +26,4 @@ app.mount(
 app.include_router(auth.router)
 app.include_router(files.router)
 app.include_router(quotes.router)
+app.include_router(chat.router)

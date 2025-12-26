@@ -21,8 +21,3 @@ class User(BaseModel):
 class RegisterResponse(BaseModel):
     message: str
     user: User
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    token_type: str = 'bearer'

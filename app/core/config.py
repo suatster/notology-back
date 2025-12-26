@@ -15,9 +15,10 @@ class Settings(BaseSettings):
     ALLOWED_EXTENSIONS: Set[str] = {"jpg", "jpeg", "png"}
     CONTENT_TYPES: Set[str] = {"image/jpeg", "image/png"}
     LESSONS: Set[str] = {"mathematic", "physic", "chemistry"} 
-    QUOTABLE_RANDOM_URL: str = "https://api.quotable.io/random"
+    QUOTABLE_URL: str = "https://api.quotable.io/random"
     MAX_CACHE_SIZE: int = 10
     MAX_RETRY: int = 5
+    AI_ORIGIN: str
 
     class Config:
         env_file = ".env"
