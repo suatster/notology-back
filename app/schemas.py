@@ -21,3 +21,9 @@ class User(BaseModel):
 class RegisterResponse(BaseModel):
     message: str
     user: User
+
+
+class ChatRequest(BaseModel):
+    model: str
+    prompt: str
+    
