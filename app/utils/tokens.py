@@ -6,6 +6,7 @@ from jose import jwt, JWTError
 from .. import models
 from app.core.config import settings
 
+
 def create_access_token(subject: str) -> str:
     expire = datetime.utcnow() + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
@@ -40,7 +41,7 @@ def verify_and_consume_refresh_token(
     ) -> models.RefreshToken | None:
     
     try:
-        uuid.UUID(token)
+        str(uuid.UUID(token))
     except ValueError:
         return None
     
@@ -55,6 +56,8 @@ def verify_and_consume_refresh_token(
         return None
 
     if token_entry.expires_at < datetime.utcnow():
+        db.delete(token_entry)
+        db.commit()
         return None
 
     db.delete(token_entry)
