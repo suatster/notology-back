@@ -53,12 +53,9 @@ def get_image(
     if not username:
         raise HTTPException(status_code=400, detail="Missing username in token payload")
     path = path.lstrip("/")
-    print(path)
     safe_path = os.path.normpath(path).replace("..", "")
-    print(safe_path)
     file_path = safe_path.replace('/', '\\')
-    print(file_path)
-
+    
     if not os.path.isfile(file_path):
         raise HTTPException(status_code=404, detail="File not found")
 
