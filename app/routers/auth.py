@@ -1,14 +1,17 @@
-from fastapi import (
-        APIRouter, Depends, 
-        HTTPException, Response, Cookie)
+from fastapi import APIRouter,HTTPException, Response, Depends, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from .. import schemas
-from ..database import get_db
 from ..core.config import settings
-from ..services.auth_service import (AuthService, 
-UserAlreadyExists, MissingRefreshToken, InvalidOrExpiredRefreshToken)
+from ..database import get_db
 from ..dependencies.auth_dependency import get_current_user
+from ..services.auth_service import (
+    AuthService,
+    UserAlreadyExists,
+    MissingRefreshToken,
+    InvalidOrExpiredRefreshToken,
+)
+
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])

@@ -1,6 +1,6 @@
 import httpx
 import json
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from app.core.config import settings
 from .. import schemas 
 
