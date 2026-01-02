@@ -1,6 +1,7 @@
 from fastapi import APIRouter,HTTPException, Response, Depends, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from datetime import timedelta
 from .. import schemas
 from ..core.config import settings
 from ..database import get_db
@@ -29,7 +30,7 @@ def register(payload: schemas.RegisterRequest, db: Session = Depends(get_db)):
             payload.password
         )
     except UserAlreadyExists as e:
-        raise HTTPException(status_code=400, detail={"message": str(e)})
+        raise HTTPException(status_code=409, detail={"message": str(e)})
 
     return schemas.RegisterResponse(
         message="You successfully registered",
@@ -57,7 +58,11 @@ def token(
         samesite="none",
         secure=False, 
         path="/", 
-        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 * 60
+        max_age = int(
+            timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+                ).total_seconds()
+        )
     )
 
     response.set_cookie(
@@ -67,7 +72,9 @@ def token(
         samesite="none",
         secure=False, 
         path="/", 
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+        max_age = int(
+            timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_DAYS).total_seconds()
+        )
     )
    
     return {"message": "Login successful"}
@@ -102,7 +109,9 @@ def refresh_token(
         samesite="none", 
         secure=False, 
         path="/", 
-        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60 * 60
+        max_age = int(
+            timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES).total_seconds()
+        )
     )
 
     response.set_cookie(
@@ -112,7 +121,9 @@ def refresh_token(
         samesite="none", 
         secure=False, 
         path="/", 
-        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
+        max_age = int(
+            timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_DAYS).total_seconds()
+        )
     )
 
     return {"message": "Token refreshed"}
