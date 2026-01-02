@@ -24,6 +24,6 @@ class RegisterResponse(BaseModel):
 
 
 class ChatRequest(BaseModel):
-    model: str
-    prompt: str
+    persona: str
+    message: str
     
