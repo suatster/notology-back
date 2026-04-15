@@ -1,7 +1,11 @@
 fastapi
-pydantic
-sqlalchemy
 uvicorn
-pydantic_settings
-psycopg2
-pydantic[email]
+requests
+httpx
+bcrypt
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+"pydantic[email]"
+python-multipart
+python-jose[cryptography]
