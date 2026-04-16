@@ -2,13 +2,15 @@ import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 from jose import jwt, JWTError
 from .. import models
 from app.core.config import settings
 
 
 def create_access_token(subject: str) -> str:
-    expire = datetime.utcnow() + timedelta(
+    current_time = datetime.now(ZoneInfo(settings.TIMEZONE))
+    expire = current_time + timedelta(
         minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
     )
     payload = {"sub": str(subject), "exp": expire}
@@ -55,7 +57,9 @@ def verify_and_consume_refresh_token(
     except (NoResultFound, Exception):
         return None
 
-    if token_entry.expires_at < datetime.utcnow():
+    current_time = datetime.now(ZoneInfo(settings.TIMEZONE))
+
+    if token_entry.expires_at < current_time:
         db.delete(token_entry)
         db.commit()
         return None

@@ -1,8 +1,12 @@
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from uuid import UUID
+from zoneinfo import ZoneInfo
+from uuid import UUID 
 from .. import crud
-from ..utils.security import hash_password, verify_password
+from ..utils.security import (
+    hash_password, 
+    verify_password
+)
 from ..utils.tokens import (
     create_access_token,
     create_refresh_token,
@@ -53,9 +57,12 @@ class AuthService:
         access = create_access_token(str(user.id))
         refresh = create_refresh_token()
 
-        expires_at = datetime.utcnow() + timedelta(
+        current_time = datetime.now(ZoneInfo(settings.TIMEZONE))
+        
+        expires_at = current_time + timedelta(
             days=settings.REFRESH_TOKEN_EXPIRE_DAYS
         )
+
         crud.save_refresh_token(self.db, user.id, refresh, expires_at)
 
         return {
@@ -86,7 +93,9 @@ class AuthService:
         new_access = create_access_token(str(db_rt.user_id))
         new_refresh = create_refresh_token()
 
-        expires_at = datetime.utcnow() + timedelta(
+        current_time = datetime.now(ZoneInfo(settings.TIMEZONE))
+
+        expires_at = current_time + timedelta(
             days=settings.REFRESH_TOKEN_EXPIRE_DAYS
         )
 
