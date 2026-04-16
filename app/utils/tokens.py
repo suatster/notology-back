@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import NoResultFound
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 from jose import jwt, JWTError
 from .. import models
@@ -57,13 +57,20 @@ def verify_and_consume_refresh_token(
     except (NoResultFound, Exception):
         return None
 
-    current_time = datetime.now(ZoneInfo(settings.TIMEZONE))
+    expires_at = token_entry.expires_at
+    istanbul_tz = ZoneInfo(settings.TIMEZONE)
 
-    if token_entry.expires_at < current_time:
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=istanbul_tz)
+
+    current_time = datetime.now(istanbul_tz)
+
+    if expires_at < current_time:
         db.delete(token_entry)
         db.commit()
         return None
 
+    db.expunge(token_entry)
     db.delete(token_entry)
     db.commit()
 

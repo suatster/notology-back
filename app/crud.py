@@ -1,3 +1,4 @@
+from app.core.config import settings
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 from datetime import datetime
