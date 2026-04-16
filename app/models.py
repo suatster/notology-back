@@ -37,7 +37,7 @@ class RefreshToken(Base):
     id = Column(SQL_UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(SQL_UUID(as_uuid=True), ForeignKey('users.id', ondelete='CASCADE'))
     token = Column(String(512), unique=True, index=True)
-    expires_at = Column(DateTime)
+    expires_at = Column(DateTime(timezone=True))
     created_at = Column(
         DateTime, 
         default=lambda: datetime.now(ZoneInfo(settings.TIMEZONE))
