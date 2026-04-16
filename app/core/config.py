@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int
     REFRESH_TOKEN_EXPIRE_DAYS: int
     ALGORITHM: str = "HS256"
-    FRONTEND_ORIGIN: str
+    TIMEZONE: str = "Europe/Istanbul"
     UPLOAD_BASE_DIR: str = "uploads"
     UPLOAD_IMAGE_DIR: str = "uploads/images"
     ALLOWED_EXTENSIONS: Set[str] = {"jpg", "jpeg", "png"}
@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     QUOTABLE_URL: str = "https://api.quotable.io/random"
     MAX_CACHE_SIZE: int = 10
     MAX_RETRY: int = 5
+    FRONTEND_ORIGIN: str
     AI_ORIGIN: str
 
     class Config:

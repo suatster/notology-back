@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from pydantic import EmailStr
 from datetime import datetime
+from zoneinfo import ZoneInfo
 from . import models
 
 def create_user(db: Session, username: str, email: str, hashed_password: str):
@@ -24,7 +25,8 @@ def get_user_by_id(db: Session, user_id):
 
 
 def save_refresh_token(db: Session, user_id, token: str, expires_at: datetime):
-    rt = models.RefreshToken(user_id=user_id, token=token, expires_at=expires_at, created_at=datetime.utcnow())
+    current_time = datetime.now(ZoneInfo(settings.TIMEZONE)) 
+    rt = models.RefreshToken(user_id=user_id, token=token, expires_at=expires_at, created_at=current_time)
     db.add(rt)
     db.commit()
     db.refresh(rt)

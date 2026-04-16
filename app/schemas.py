@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
-from uuid import UUID
+from uuid import UUID 
 
 class RegisterRequest(BaseModel):
     username: str
